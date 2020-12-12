@@ -1,0 +1,28 @@
+{
+  "name": "cardsAgainstHumanity",
+  "version": "1.0.0",
+  "description": "Online Cards Against Humanity Game",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server",
+    "dev": "nodemon server"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ajbastien/cardsAgainstHumanity"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "Apache",
+  "bugs": {
+    "url": "https://github.com/ajbastien/cardsAgainstHumanitys/issues"
+  },
+  "homepage": "https://github.com/ajbastien/cardsAgainstHumanity#readme",
+  "dependencies": {
+    "express": "^4.17.1",
+    "socket.io": "^2.3.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.6"
+  }
+}
