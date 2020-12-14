@@ -1,20 +1,51 @@
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
   <head>
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="manifest" href="/site.webmanifest">
+    <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+    <meta name="msapplication-TileColor" content="#da532c">
+    <meta name="theme-color" content="#ffffff">
+
     <meta charset="utf-8">
-    <title>Battle Ships</title>
+    <title>Cards Against Humanity</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Montserrat&display=swap" rel="stylesheet">
+    <script>
+      let gameMode = 1  //MODE_NOT_CONNECTED
+    </script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="app.js" charset="utf-8"></script>
   </head>
   <body>
-    <div class="splash-container">
-      <h1 class="splash-title">Battleship</h1>
-      <div>
-        <a href="/singleplayer.html" class="btn splash-btn">Single Player</a>
-        <a href="/multiplayer.html" class="btn splash-btn">Multiplayer</a>
+    <div class="container-top">
+      <div class="container">
+        <h3  class="info-text">Name:</h3><input id="name"></input>
+        <button id="connect" class="btn">Connect</button>
+      </div>
+      <div class="container">
+        <h3 id="winning-cards" class="info-text">Win Count: 0</h3>
       </div>
     </div>
 
-    <img src="/images/battleship-large.svg" class="splash-battleship-image">
+    <div class="container2">
+      <div class="black-cards"></div>
+      <div class="send-cards"></div>
+    </div>
+
+    <div class="container-left">
+      <button id="ready" class="btn">Ready</button>
+      <h3 id="info" class="info-text">Please Connect!</h3>
+    </div>
+
+    <div class="white-cards"></div>
+
+    <div class="container-left">
+      <button id="start-game" class="btn">Start Game</button>
+      <h3 id="players" class="info-text">Players: </h3>
+    </div>
+   
   </body>
 </html>
