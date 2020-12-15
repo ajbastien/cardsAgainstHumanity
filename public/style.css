@@ -67,10 +67,10 @@ body {
 
 .black-cards {
   margin: 20px;
-  display: flex;
+  display: center;
   flex-wrap: wrap;
   background-color: hsl(0, 52%, 24%);
-  height: 170px;
+  height: 200px;
   width: 20%;
 }
 
@@ -79,7 +79,7 @@ body {
   display: flex;
   flex-wrap: wrap;
   background-color: hsl(200, 100%, 50%);
-  height: 170px;
+  height: 200px;
   width: 75%;
 }
 
@@ -93,16 +93,16 @@ body {
 }
 
 .black-card {
-  margin: 20px;
+  margin: 8px;
   display: flex;
   flex-wrap: wrap;
   background-color: hsl(195, 40%, 2%);
-  height: 125px;
-  width: 95%;
+  height: 90%;
+  width: 90%;
 }
 
 .white-card-top {
-  margin: 20px;
+  margin: 5px;
   display: flex;
   flex-wrap: wrap;
   background-color: hsl(0, 0%, 100%);
@@ -111,7 +111,7 @@ body {
 }
 
 .white-card-hand {
-  margin: 10px;
+  margin: 5px;
   display: flex;
   flex-wrap: wrap;
   background-color: hsl(0, 0%, 100%);
@@ -143,9 +143,14 @@ body {
   margin: 1rem;
 }
 
+.info-text {
+  margin: 1rem;
+}
 
-.player {
-  margin: 2vmin;
+
+.player-text {
+  margin-top: 0px;
+  margin-left: 50px;
 }
 
 .connected, .ready {

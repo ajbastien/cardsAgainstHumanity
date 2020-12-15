@@ -18,6 +18,7 @@ const blackCards = []
 const whiteCards = []
 let currentBlackCard = null
 let currentDealer = null
+let lastDummyCard = null
 
 //player info: name, winningCards, whiteCards, socket, state(connected, ready, player, dealer)
 const players = [null, null, null, null, null]  //Max 5 for now
@@ -78,6 +79,7 @@ io.on('connection', socket => {
     updatePlayer(playerIndex, null, 'disconnected', null, null)
    
     sendPlayerInfo(socket)
+    socket.broadcast.emit('popup', {text:`Player ${players[playerIndex].name} disconnected`, timeout:10000})
 
     console.log(`Player ${playerIndex} disconnected`)
 
@@ -88,8 +90,61 @@ io.on('connection', socket => {
     console.log(`updating player: ready`)
     updatePlayer(playerIndex, null, 'ready', null, null)
     socket.emit('mode-wait', 'players')
-
     sendPlayerInfo(socket)
+
+    if (mode == MODE_WAITING_WHITE_CARDS) {
+      socket.emit('start-game')
+      currentDealer.state = 'dealer'
+
+      players.forEach(player => {
+        if (player != null) {
+          if (player.state == 'dealer') {
+            player.socket.emit('send-cards', player.whiteCards)
+            player.socket.emit('mode-wait', 'players')
+            player.socket.emit('black-card', currentBlackCard)
+            player.socket.emit('mode-wait', 'players')
+
+          } else {
+            player.socket.emit('black-card', currentBlackCard)
+            if (player.whiteCards.length < 10) {
+              sendWhiteCards(player)
+            } else {
+              player.socket.emit('send-cards', player.whiteCards)
+            }
+            player.socket.emit('mode-player', currentBlackCard)
+          }
+        }
+      })
+      sendPlayerInfo(socket)
+    }
+
+    if (mode == MODE_WAITING_DEALER) {
+      socket.emit('start-game')
+      currentDealer.state = 'dealer'
+
+      let cards = []
+      let dealer = null
+
+      players.forEach(player => {
+        if (player != null) {
+          if (player.state == 'dealer') dealer = player
+          else {
+            cards.push(player.whiteCards[player.selectedWhite])  
+            player.socket.emit('black-card', currentBlackCard)
+            player.socket.emit('send-cards', [player.whiteCards[player.selectedWhite]])
+            player.socket.emit('mode-wait', 'dealer')
+          }
+        }
+      })
+    
+      cards.push(lastDummyCard)    
+      shuffle(cards)
+
+      dealer.socket.emit('mode-dealer')
+      dealer.socket.emit('send-cards', cards)
+      sendPlayerInfo(socket)
+    }
+
   })
 
   socket.on('start-game', () => {
@@ -140,7 +195,8 @@ function checkWhiteCards(socket) {
     }
   })
 
-  cards.push(getCard(whiteCards))
+  lastDummyCard = getCard(whiteCards)
+  cards.push(lastDummyCard)
   console.log(`countNeeded = ${countNeeded} ${cards}`)
 
   shuffle(cards)
@@ -210,6 +266,14 @@ function sendWinner(winnerText, socket) {
     }
   })
 
+  let text = ''
+  if (winningPlayer != null) {
+    text = `Winner: ${winnerName} with card: ${winnerText}`
+  } else {
+    text = `Winning card: ${winnerText} (Dummy Card)`
+  }
+  socket.emit('popup', {text:text, timeout:7000})
+  socket.broadcast.emit('popup', {text:text, timeout:7000})
   mode = MODE_WAITING_WHITE_CARDS
 }
 
