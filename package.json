@@ -11,8 +11,12 @@
     "type": "git",
     "url": "git+https://github.com/ajbastien/cardsAgainstHumanity"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "cards",
+    "online",
+    "game"
+  ],
+  "author": "Al Bastien",
   "license": "Apache",
   "bugs": {
     "url": "https://github.com/ajbastien/cardsAgainstHumanitys/issues"
