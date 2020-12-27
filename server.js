@@ -9,7 +9,7 @@ const { compileFunction } = require('vm');
 const app = express()
 const server = http.createServer(app)
 const io = socketio(server)
-const PORT = process.env.PORT || 3000
+const PORT = process.env.PORT || 20202
 
 const MODE_CONNECTING = 1
 const MODE_WAITING_WHITE_CARDS = 2
@@ -376,9 +376,6 @@ function startGame(socket) {
   console.log(`Dealer index ${dealer}`)
 
   currentBlackCard = getCard(blackCards)
-  while (currentBlackCard.indexOf('_222_') < 0) {
-    currentBlackCard = getCard(blackCards)
-  }
 
   let text2 = currentBlackCard.replace('_222_', '___')
   if (currentBlackCard != text2) {
