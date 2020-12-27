@@ -42,7 +42,7 @@ document.addEventListener('DOMContentLoaded', () => {
     playerName = nameInput.value
     console.log(`gameMode: ${gameMode}`)
 
-    if(playerName.length > 0) {
+    if (playerName.length > 0) {
       if (gameMode == MODE_NOT_CONNECTED) {
         console.log(`connecting with playerName: $(playerName)`)
         connectButton.innerHTML = "Connected"
@@ -52,10 +52,10 @@ document.addEventListener('DOMContentLoaded', () => {
         //console.log(`playerName: $(playerName)`)
         //gSocket.emit('player-info', {name: playerName, num: playerNum})
       }
-      
+
     } else infoDisplay.innerHTML = "Please enter your name"
   })
-  
+
 
   // Connected
   function connect() {
@@ -73,19 +73,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
         console.log(`Player Number: ${playerNum}`)
 
-        socket.emit('player-info', {name: playerName, num: playerNum})
+        socket.emit('player-info', { name: playerName, num: playerNum })
       }
     })
 
     // Another player has connected or disconnected
     socket.on('player-info', players => {
       playerInfoUpdate(players)
-      sendCards.innerHTML = ""
-      sendingCardsIdOrText = []
       playerCount = players.length
     })
 
-    socket.on('start-game', ()  => {
+    socket.on('start-game', () => {
       startButton = clearAllEventListeners(startButton)
     })
 
@@ -95,35 +93,39 @@ document.addEventListener('DOMContentLoaded', () => {
       infoDisplay.innerHTML = `Waiting  for ${who}${gameMode == MODE_CONNECTED ? ' press Start Game when all are ready' : ''}`
       console.log(`---------------press STart Game when all are ready`)
       gameMode = MODE_WAITING
-    }) 
+    })
 
     socket.on('black-card', blackCard => {
       console.log(`Received black-card with ${blackCard}`)
       blackCard = fixBlackCard(blackCard)
       replaceCard(blackCards, 'black-card', 'card-text-white', [blackCard], false)
-    }) 
+    })
 
     socket.on('mode-dealer', () => {
       console.log(`Received mode-dealer`)
+      sendCards.innerHTML = ""
+      sendingCardsIdOrText = []
 
       infoDisplay.innerHTML = "Pick the winner (drag the card up as you read them and DOUBLE click the winning card)"
       gameMode = MODE_DEALER
       clickedCards = 0
       twoCardMode = false
       console.log(`twoCardMode = ${twoCardMode}`)
-    }) 
+    })
 
     var oldMessage = ''
     socket.on('popup', popup => {
       oldMessage = infoDisplay.innerHTML
       infoDisplay.innerHTML = `<p style="margin:0; color:red;">&nbsp;&nbsp;&nbsp;&nbsp;<b>${popup.text}</b</p>`
-      setTimeout(function(){
+      setTimeout(function () {
         infoDisplay.innerHTML = oldMessage
       }, popup.timeout);
     })
 
     socket.on('mode-player', blackCard => {
       console.log(`Received mode-player with ${blackCard}`)
+      sendCards.innerHTML = ""
+      sendingCardsIdOrText = []
       blackCard = fixBlackCard(blackCard)
       replaceCard(blackCards, 'black-card', 'card-text-white', [blackCard], false)
 
@@ -136,8 +138,8 @@ document.addEventListener('DOMContentLoaded', () => {
     socket.on('send-cards', cardsList => {
       console.log(`Received send-cards with ${cardsList.length}`)
       myWhiteCards = cardsList
-      replaceCard(whiteCards, 'white-card-hand', 'card-text-black', cardsList, true)      
-    }) 
+      replaceCard(whiteCards, 'white-card-hand', 'card-text-black', cardsList, true)
+    })
 
     // On Timeout
     socket.on('timeout', () => {
@@ -164,18 +166,18 @@ document.addEventListener('DOMContentLoaded', () => {
       if (gameMode == MODE_CONNECTED) {
         console.log('sending player-ready')
         socket.emit('player-ready')
-  
+
         // Ready button click
         startButton.addEventListener('click', () => {
-          if(allPlayersReady) {
+          if (allPlayersReady) {
             console.log('sending start-game')
             socket.emit('start-game')
-  
+
           } else infoDisplay.innerHTML = "Please wait for players to be ready"
         })
 
       } else if (gameMode == MODE_DEALER || gameMode == MODE_PLAYER) {
-        console.log(`sendingCardsIdOrText = ${sendingCardsIdOrText}`)
+        console.log(`sendingCardsIdOrText = ${sendingCardsIdOrText}  twocard:${twoCardMode}`)
         if (sendingCardsIdOrText.length == 1 && !twoCardMode) {
           let text = sendingCardsIdOrText[0]
 
@@ -192,31 +194,31 @@ document.addEventListener('DOMContentLoaded', () => {
           socket.emit('send-cards', text)
 
         } else if (sendingCardsIdOrText.length == 2 && twoCardMode) {
-            console.log(`Sending 2 ids`)  
-            if (gameMode == MODE_PLAYER) {  //Player sends index
-              let id1 = parseInt(sendingCardsIdOrText[0].substr(-1))
-              let id2 = parseInt(sendingCardsIdOrText[1].substr(-1))
-              text = `${id1}-${id2}`
-              sendCards.innerHTML = ''
-              sendingCardsIdOrText = []
-              whiteCards.innerHTML = buildCard(0, "white-card-hand", "card-text-black", myWhiteCards[id1], false)+buildCard(0, "white-card-hand", "card-text-black", myWhiteCards[id2], false)
-  
-            } else {
-              //nop dealer send text
-            }
-            console.log(`sending send-cards ${text}`)
-            socket.emit('send-cards', text)
-  
+          console.log(`Sending 2 ids`)
+          if (gameMode == MODE_PLAYER) {  //Player sends index
+            let id1 = parseInt(sendingCardsIdOrText[0].substr(-1))
+            let id2 = parseInt(sendingCardsIdOrText[1].substr(-1))
+            text = `${id1}-${id2}`
+            sendCards.innerHTML = ''
+            sendingCardsIdOrText = []
+            whiteCards.innerHTML = buildCard(0, "white-card-hand", "card-text-black", myWhiteCards[id1], false) + buildCard(0, "white-card-hand", "card-text-black", myWhiteCards[id2], false)
+
           } else {
-          if (twoCardMode) infoDisplay.innerHTML = "Pick a single card before clicking ready"
-          else  infoDisplay.innerHTML = "Pick a two cards before clicking ready"
+            //nop dealer send text
+          }
+          console.log(`sending send-cards ${text}`)
+          socket.emit('send-cards', text)
+
+        } else {
+          if (twoCardMode) infoDisplay.innerHTML = "Pick a two cards before clicking ready"
+          else infoDisplay.innerHTML = "Pick a single card before clicking ready"
         }
 
       }
 
 
     })
-    
+
   }
 
   function buildCard(counter, divClass, textClass, cardText, draggable) {
@@ -224,7 +226,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (draggable) {
       drag = ' draggable="true"'
     }
-    
+
     let html = `<div id="${divClass}-${counter}" class="${divClass}"${drag}><div class="${textClass}"><h4>${cardText}</h4></div></div>`
 
     return html
@@ -251,7 +253,7 @@ document.addEventListener('DOMContentLoaded', () => {
     //<div class="white-card-hand"><div class="card-text-black"><h4>Biggest Blackist Dick</h4></div></div>
     //<div class="white-card-top"><div class="card-text-black"><h4>Biggest Blackist Dick</h4></div></div>
     console.log(`replacing in ${cardContainer.classList} ${cardText}`)
-    
+
     while (cardContainer.lastElementChild) {
       cardContainer.removeChild(cardContainer.lastElementChild);
     }
@@ -291,14 +293,14 @@ document.addEventListener('DOMContentLoaded', () => {
     let counter = 0
     let dealer = null
 
-    players.forEach( player => {
+    players.forEach(player => {
       //if (counter > 0) playerString += ", "
       if (player.state != 'dealer') playerString += `<br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${player.name} - Wins: ${player.winCount}${player.state == 'READY' ? " &nbsp;&nbsp;&nbsp;&nbsp;(READY)" : ''}${player.state.includes('connected') ? " &nbsp;&nbsp;&nbsp;&nbsp;(NOT READY)" : ''}`
       else dealer = player
       counter++
       if (player.state == "connected" || player.state == 'disconnected') allPlayersReady = false
     })
-    
+
     if (counter < 2) allPlayersReady = false
 
     console.log(`recieved ${counter} players all ready: ${allPlayersReady}`)
@@ -331,6 +333,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (gameMode == MODE_DEALER) sendingCardsIdOrText.push(cardText)
     else sendingCardsIdOrText.push(draggedCard.id)
 
+    console.log(`dragDropSend = ${sendingCardsIdOrText}  twocard:${twoCardMode}`)
+
   }
 
   function dragDropWhite() {
@@ -342,6 +346,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (gameMode == MODE_PLAYER) sendingCardsIdOrText = sendingCardsIdOrText.filter(text => text != draggedCard.id)
     else sendingCardsIdOrText = sendingCardsIdOrText.filter(text => text != cardText)
+
+    console.log(`dragDropWhite = ${sendingCardsIdOrText}  twocard:${twoCardMode}`)
 
   }
 
@@ -355,7 +361,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (gameMode == MODE_DEALER) {
       if (clickedCards >= playerCount) {
         console.log(`sending send-cards ${cardText}`)
-        gSocket.emit('send-cards', cardText)  
+        gSocket.emit('send-cards', cardText)
       }
 
     } else if (gameMode == MODE_PLAYER) {
@@ -389,23 +395,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (clicks == 1) {
 
-      timeout = setTimeout(function(){
-        if(clicks == 1) {
+      timeout = setTimeout(function () {
+        if (clicks == 1) {
           click(clickedCard);
         } else {
           doubleClick(clickedCard);
         }
         clicks = 0;
         clickedCard = null
+        clearTimeout(timeout)
         timeout = null
       }, 300);
 
-    } 
+    }
   }
 
   function click(card) {
 
     if (card == null) return
+
+    console.log(`click = ${card.id} ${card.parentNode.classList} ${sendingCardsIdOrText}  twocard:${twoCardMode}`)
 
     let classes = card.parentNode.classList
 
@@ -413,7 +422,7 @@ document.addEventListener('DOMContentLoaded', () => {
       let cardIndex = card.id.substr(-1)
       let cardText = myWhiteCards[parseInt(cardIndex)]
       whiteCards.appendChild(card)
-  
+
       if (gameMode == MODE_PLAYER) sendingCardsIdOrText = sendingCardsIdOrText.filter(text => text != card.id)
       else sendingCardsIdOrText = sendingCardsIdOrText.filter(text => text != cardText)
 
@@ -423,12 +432,12 @@ document.addEventListener('DOMContentLoaded', () => {
       let cardText = myWhiteCards[parseInt(cardIndex)]
       sendCards.appendChild(card)
       clickedCards++
-  
+
       if (gameMode == MODE_DEALER) gSocket.emit('dropped-card', cardText)
-  
+
       if (gameMode == MODE_DEALER) sendingCardsIdOrText.push(cardText)
       else sendingCardsIdOrText.push(card.id)
-  
+
     }
     console.log(`sendingCardsIdOrText = ${sendingCardsIdOrText}`)
   }
